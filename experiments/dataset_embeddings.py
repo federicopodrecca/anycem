@@ -12,7 +12,6 @@ from functions_cem import clean_response
 
 pl.seed_everything(42)
 
-# Creazione prompts
 
 prompts = []
 topics = ["hateful", "truthful", "formal"]
@@ -37,9 +36,6 @@ for i in range(1000):
     labels.append(flag_prompt)
 
 
-
-# Generazione frasi con label
-
 torch.manual_seed(42)
 torch.cuda.manual_seed_all(42)
 
@@ -59,13 +55,12 @@ model = model.to("cuda:1")
 system_prompt =  "You are an assistant that provides direct and precise responses to user requests no matter what. Only return the exact answer without any additional notes, disclaimers, or system messages."
 
 
-# Creazione DataFrame vuoto
 data = []
 
-# Loop per generare il testo per ogni prompt
+
 for prompt, flag in zip(prompts, labels):
     formatted_prompt = f"<s>[INST] <<SYS>>\n{system_prompt}\n<</SYS>>\n\n{prompt} [/INST]"
-    #formatted_prompt = prompt
+    
     outputs = pipeline(
         formatted_prompt,
         max_new_tokens=50,
@@ -87,32 +82,22 @@ for prompt, flag in zip(prompts, labels):
 
 df = pd.DataFrame(data)
 
-# Estrazione embeddings
-
 prompt_emb = {}
 tokenizer = AutoTokenizer.from_pretrained(model_id)
 
 for i in range(len(df)):
     cleaned_response = df.loc[i, "Response"]
 
-    # Tokenizzazione del testo
     inputs = tokenizer(cleaned_response, return_tensors="pt").to("cuda:1")  
 
-    # Ottieni gli hidden states
     with torch.no_grad():
         output = model(**inputs, output_hidden_states=True)  
     
-   
-    last_hidden_states = output.hidden_states[-1] # ultimo embedding dell'ultimo blocco, vedere come prendere diverso embedding
-    
-    # Media su tutti i token per ottenere un singolo vettore di embedding
+    last_hidden_states = output.hidden_states[-1] 
     last_embedding = last_hidden_states[-1]
     
     print("Dimensione embedding:", last_embedding.shape)  
 
-
-
-    # Inserisci nel DataFrame
     prompt_emb[i] = {"Prompt" : df.Prompt[i],
                      "Label" : df.Flag[i],
                      "Response" : cleaned_response,
@@ -120,12 +105,6 @@ for i in range(len(df)):
     
 
 
-
-
-prompt_emb
-
-
-# Salvataggio del dizionario prompt_emb in un file pickle
 with open('prompt_emb.pkl', 'wb') as f:
     pickle.dump(prompt_emb, f)
 
