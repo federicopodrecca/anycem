@@ -110,7 +110,7 @@ class GenerativeCEM(NeuralNet):
         # concept_loss_2 = self.nnl(torch.log(c_preds[:, -2:]), c_true[:, -2:].float().argmax(dim=-1))
         mse_loss = self.mse(rec_emb, X)
         base_loss = concept_loss + mse_loss + concept_loss_int
-        loss = self.w_concept_loss + concept_loss + self.w_loss * mse_loss + self.w_concept_loss_int * concept_loss_int
+        loss = self.w_concept_loss * concept_loss + self.w_loss * mse_loss + self.w_concept_loss_int * concept_loss_int
 
         if self.device_gpu:
             concept_accuracy = roc_auc_score(c_true.cpu().numpy(), c_preds.detach().cpu().numpy())
@@ -138,7 +138,7 @@ class GenerativeCEM(NeuralNet):
         # concept_loss_2 = self.nnl(torch.log(c_preds[:, -2:]), c_true[:, -2:].float().argmax(dim=-1))
         mse_loss = self.mse(rec_emb, X)
         base_loss = concept_loss + mse_loss + concept_loss_int
-        loss = self.w_concept_loss + concept_loss + self.w_loss * mse_loss + self.w_concept_loss_int * concept_loss_int
+        loss = self.w_concept_loss * concept_loss + self.w_loss * mse_loss + self.w_concept_loss_int * concept_loss_int
 
         if self.device_gpu:
             concept_accuracy = roc_auc_score(c_true.cpu().numpy(), c_preds.detach().cpu().numpy())
@@ -168,7 +168,7 @@ class GenerativeCEM(NeuralNet):
         # concept_loss_2 = self.nnl(torch.log(c_preds[:, -2:]), c_true[:, -2:].float().argmax(dim=-1))
         mse_loss = self.mse(rec_emb, X)
         base_loss = concept_loss + mse_loss + concept_loss_int
-        loss = self.w_concept_loss + concept_loss + self.w_loss * mse_loss + self.w_concept_loss_int * concept_loss_int
+        loss = self.w_concept_loss * concept_loss + self.w_loss * mse_loss + self.w_concept_loss_int * concept_loss_int
 
         if self.device_gpu:
             concept_accuracy = roc_auc_score(c_true.cpu().numpy(), c_preds.detach().cpu().numpy())
